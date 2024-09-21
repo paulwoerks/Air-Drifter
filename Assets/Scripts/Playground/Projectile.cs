@@ -12,11 +12,11 @@ namespace Game
             transform.position += speed * transform.forward * Time.deltaTime;
         }
 
-        private void OnTriggerEnter2D(Collider2D collision)
+        private void OnTriggerEnter(Collider collision)
         {
-            if (collision.gameObject.CompareTag("Enemy"))
+            if (collision.gameObject.TryGetComponent<Health>(out Health health))
             {
-                collision.gameObject.GetComponent<Enemy>().TakeDamage(damage);
+                health.TakeDamage(damage);
                 Pooler.Despawn(gameObject);
             }
         }

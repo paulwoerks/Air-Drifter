@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game
@@ -10,7 +8,11 @@ namespace Game
         [SerializeField] int maxHealth;
         [SerializeField] float speed = 1f;
         [SerializeField] float rotationSpeed = 5f;
-        [SerializeField] Transform player;
+
+        [SerializeField] float flowResistance = .5f;
+        [SerializeField] Rigidbody2D rb;
+        [SerializeField] LevelPhysics physics;
+        [SerializeField] TransformAnchor player;
 
         void Awake()
         {
@@ -27,6 +29,7 @@ namespace Game
         {
             TurnToTarget();
             Accelerate();
+            AddExternalForces();
         }
 
         public void TakeDamage(int damage)
@@ -35,8 +38,15 @@ namespace Game
 
             if (health <= 0)
             {
-                Pooler.Despawn(gameObject);
+                health = 0;
+                Die();
             }
+        }
+
+        void Die()
+        {
+            Debug.Log("Die");
+            Pooler.Despawn(gameObject);
         }
 
         void Accelerate()
@@ -46,9 +56,15 @@ namespace Game
 
         void TurnToTarget()
         {
-            Vector3 targetDirection = (player.position - transform.position).normalized;
+            Vector3 targetDirection = (player.Value.position - transform.position).normalized;
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+
+        void AddExternalForces()
+        {
+            float resistance = (1f - flowResistance);
+            rb.AddForce(physics.GetWaterFlowForce() * resistance);
         }
     }
 }

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 318cd7933dcd4465dacdcb426bd2045d, type: 3}
-  m_Name: PlaygroundPhysics
+  m_Name: SpacePhysics
   m_EditorClassIdentifier: 
-  flowStrength: 8
-  flowDireciton: {x: 0, y: -1}
+  flowStrength: 0
+  flowDireciton: {x: 0, y: 0}

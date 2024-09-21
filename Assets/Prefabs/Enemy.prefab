@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1927124364437937808}
   m_Layer: 0
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -47,9 +47,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 775d499bef96e426c826896fa24bb1a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  health: 0
+  maxHealth: 1
+  speed: 10
   rotationSpeed: 5
-  player: {fileID: 0}
+  flowResistance: 0.5
+  rb: {fileID: 6767620295928761609}
+  physics: {fileID: 11400000, guid: b87727bb55d114a07b458af9683c164f, type: 2}
+  player: {fileID: 11400000, guid: 24aca0d9a1bdf4d9e8ac5d2596d9594a, type: 2}
 --- !u!50 &6767620295928761609
 Rigidbody2D:
   serializedVersion: 4
@@ -63,7 +68,7 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 0
+  m_LinearDrag: 3
   m_AngularDrag: 0.05
   m_GravityScale: 0
   m_Material: {fileID: 0}

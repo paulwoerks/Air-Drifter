@@ -1,6 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 
 namespace Game
@@ -23,18 +23,33 @@ namespace Game
 
         MoveStats currentMoveStats;
 
-        [SerializeField] Rigidbody2D rb;
+        Rigidbody rb;
         [SerializeField] GameObject projectile;
 
+        [SerializeField] UnityEvent OnStartBoost;
+        [SerializeField] UnityEvent OnEndBoost;
+
         [SerializeField] LevelPhysics physics;
+        [SerializeField] TransformAnchor playerAnchor;
 
         JoystickReader movementStick;
         bool isBoosting = false;
 
         private void Awake()
         {
+            rb = GetComponent<Rigidbody>();
             movementStick = new("Movement");
             SetBoostMode(false);
+        }
+
+        private void OnEnable()
+        {
+            playerAnchor.Provide(transform);
+        }
+
+        private void OnDisable()
+        {
+            playerAnchor.Unset();
         }
 
         private void Update()
@@ -56,13 +71,14 @@ namespace Game
             currentMoveStats = active ? boostMovement : defaultMovement;
             isBoosting = active;
             rb.drag = currentMoveStats.drag;
+            if (isBoosting) { OnStartBoost.Invoke(); } else { OnEndBoost.Invoke(); }
         }
 
         // Update is called once per frame
         void FixedUpdate()
         {
             Rotate();
-            AddExternalForces();
+            //AddExternalForces();
 
             if (isBoosting)
             {
