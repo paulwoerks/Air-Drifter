@@ -13,6 +13,13 @@ namespace Game
         [SerializeField] UnityEvent OnTakeDamage;
         [SerializeField] UnityEvent OnDie;
 
+        IKillable killable;
+
+        void Awake()
+        {
+            killable = GetComponent<IKillable>();
+        }
+
         public void SetHealth(int newMaxHP = 0, bool resetHealth = true)
         {
             maxHP = newMaxHP > 0 ? newMaxHP : this.maxHP;
@@ -31,6 +38,9 @@ namespace Game
             if (isDead)
             {
                 hp = 0;
+
+                killable?.Die();
+
                 OnDie.Invoke();
             }
         }

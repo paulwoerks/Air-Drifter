@@ -41,9 +41,9 @@ namespace Game
         ///<summary>
         ///Despawn existing Instance of Prefab.
         ///</summary>
-        public static void Despawn(GameObject instance, float delay = 0f)
+        public static void Despawn(GameObject instance, bool destroy = true, float delay = 0f)
         {
-            Instance.DespawnPooledObject(instance, delay);
+            Instance.DespawnPooledObject(instance, destroy, delay);
         }
         #endregion
 
@@ -64,7 +64,7 @@ namespace Game
             return pooledObject.gameObject;
         }
 
-        async void DespawnPooledObject(GameObject instance, float delay = 0f)
+        async void DespawnPooledObject(GameObject instance, bool destroy, float delay = 0f)
         {
             if (delay > 0f)
             {
@@ -79,7 +79,11 @@ namespace Game
                 pool.AddToPool(instance);
                 instance.transform.SetParent(inactiveInstances);
                 return;
+            } else if (destroy)
+            {
+                Destroy(instance);
             }
+
         }
 
         void CreateHierarchyStructure()

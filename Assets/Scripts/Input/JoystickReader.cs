@@ -9,11 +9,11 @@ public class JoystickReader
 
     public JoystickReader(string joystickName) => joystick = UltimateJoystick.GetUltimateJoystick(joystickName);
 
-    public Vector2 Direction2D(float rotationOffset = 0f) => Rotate(
+    public Vector2 GetDirection2D(float rotationOffset = 0f) => Rotate(
         new Vector2(joystick.HorizontalAxis, joystick.VerticalAxis),
         rotationOffset);
 
-    public Vector3 Direction3D(float rotationOffset = 0f) => Rotate(
+    public Vector3 GetDirection3D(float rotationOffset = 0f) => Rotate(
         new Vector3(joystick.HorizontalAxis, 0, joystick.VerticalAxis),
         rotationOffset);
 

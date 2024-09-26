@@ -9,6 +9,16 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: m_Rocket
     second: {fileID: 2100000, guid: f7399cb55b4834b0990c7bfb0c3ee54f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: m_RocketBack
+    second: {fileID: 2100000, guid: b4a8e840d8f254671a58553d349ff31d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: m_RocketMain
+    second: {fileID: 2100000, guid: 896bab68e91084d4c82ac1f575e709d6, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

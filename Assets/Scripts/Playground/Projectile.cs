@@ -9,12 +9,18 @@ namespace Game
 
         void Update()
         {
-            transform.position += speed * transform.forward * Time.deltaTime;
+            transform.position += speed * transform.right * Time.deltaTime;
         }
 
-        private void OnTriggerEnter(Collider collision)
+        private void OnTriggerEnter(Collider other)
         {
-            if (collision.gameObject.TryGetComponent<Health>(out Health health))
+            Debug.Log("Deal Damage");
+            DealDamage(other.gameObject);
+        }
+
+        void DealDamage(GameObject target)
+        {
+            if (target.TryGetComponent(out Health health))
             {
                 health.TakeDamage(damage);
                 Pooler.Despawn(gameObject);

@@ -5,10 +5,11 @@ using UnityEngine.Events;
 
 namespace Game
 {
-    public class Player : MonoBehaviour
+    public class Player : MonoBehaviour, IKillable
     {
         [SerializeField] float fireRate = 0.2f;
         [SerializeField] float boostSpeed = 45f;
+        [SerializeField] Transform model;
 
         [System.Serializable]
         class MoveStats
@@ -66,6 +67,12 @@ namespace Game
             }
         }
 
+        public void Die()
+        {
+            Debug.Log("Player dead!");
+        }
+
+        #region Movement
         void SetBoostMode(bool active)
         {
             currentMoveStats = active ? boostMovement : defaultMovement;
@@ -77,8 +84,10 @@ namespace Game
         // Update is called once per frame
         void FixedUpdate()
         {
-            Rotate();
-            //AddExternalForces();
+            //Rotate();
+            //Rotate2();
+            Rotate3();
+            AddExternalForces();
 
             if (isBoosting)
             {
@@ -93,20 +102,22 @@ namespace Game
 
         void AddExternalForces()
         {
+            Vector2 externalForces = physics.GetForces();
+            if (externalForces == Vector2.zero) return;
+
             float resistance = (1f - currentMoveStats.flowResistance);
-            rb.AddForce(physics.GetWaterFlowForce() * resistance);
+            rb.AddForce(externalForces * resistance);
         }
 
         void Accelerate()
         {
-            Vector3 force = boostSpeed * movementStick.Power * transform.forward;
-            //transform.position += force * Time.deltaTime;
+            Vector3 force = boostSpeed * movementStick.Power * transform.right;
             rb.AddForce(force);
         }
 
         void Rotate()
         {
-            Vector3 stickDirection = movementStick.Direction2D();
+            Vector3 stickDirection = movementStick.GetDirection2D();
 
             if (!movementStick.IsPressed || stickDirection == Vector3.zero)
                 return;
@@ -115,6 +126,20 @@ namespace Game
 
             Quaternion targetRotation = Quaternion.LookRotation(stickDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            //transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 1000 * rotationSpeed * Time.deltaTime);
+        }
+
+        void Rotate3()
+        {
+            float offset = 0f;
+            Vector2 inputDirection = movementStick.GetDirection2D();
+            Vector3 direction = new Vector3(inputDirection.x, inputDirection.y, 0) + transform.position;
+
+            Debug.DrawLine(transform.position, direction, Color.red);
+            float angle = Mathf.Atan2(inputDirection.y, inputDirection.x) * Mathf.Rad2Deg + offset;
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.AngleAxis(angle, Vector3.forward), currentMoveStats.rotationSpeed * Time.deltaTime);
+
+            model.localEulerAngles = new Vector3(angle * 2, 0, 0);
         }
 
         IEnumerator ShootRoutine()
@@ -125,5 +150,6 @@ namespace Game
                 Shoot();
             }
         }
+        #endregion
     }
 }

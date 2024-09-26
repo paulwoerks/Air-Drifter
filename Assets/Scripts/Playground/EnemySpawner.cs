@@ -6,38 +6,92 @@ namespace Game
 {
     public class EnemySpawner : MonoBehaviour
     {
-        [SerializeField] int enemyBudget = 10;
-        [SerializeField] GameObject enemyPrefab;
+        [SerializeField] int maxEnemies = 5;
+        [SerializeField] bool debug;
+        [SerializeField] LayerMask spawnableLayers;
+        [SerializeField] Transform parent;
         [SerializeField] TransformAnchor playerAnchor;
-        List<GameObject> enemies = new();
+        [SerializeField] GroupAnchors activeEnemies;
 
-        void Update()
+        [SerializeField] GameObject prefab;
+
+        private void Start()
         {
-            if (enemies.Count < enemyBudget)
+            Spawn(prefab);
+        }
+
+        private void Update()
+        {
+            int desiredEnemies = maxEnemies - activeEnemies.Group.Count;
+            if (desiredEnemies > 0)
             {
-                SpawnEnemy();
+                Spawn(prefab);
             }
         }
 
-        void SpawnEnemy()
+
+        public void Spawn(GameObject prefab)
         {
-            Quaternion rotation = Quaternion.identity;
+            StartCoroutine(SpawnGroup(prefab, 2, 6));
+        }
 
-            GameObject enemy = Pooler.Spawn(enemyPrefab, GetSpawnPosition(), rotation);
-            enemies.Add(enemy);
-;        }
-
-        Vector2 GetSpawnPosition()
+        IEnumerator SpawnGroup(GameObject prefab, int groupSize = 1, int groupSizeMax = 1)
         {
-            Vector2 distance = new Vector2(5, 20);
-            Vector2 spawnPosition = new Vector2(Random.Range(distance.x, distance.y), Random.Range(distance.x, distance.y));
+            if (playerAnchor.IsSet)
+            {
+                Vector3 spawnArea = GetSpawnPoint(playerAnchor.Value.position, 15);
 
-            if (Random.Range(0,1) < 0.5f)
-                spawnPosition.x *= -1;
-            if (Random.Range(0, 1) < 0.5f)
-                spawnPosition.y *= -1;
+                int units = Random.Range(groupSize, groupSizeMax + 1);
+                float unitDistance = 3f;
 
-            return (Vector2)playerAnchor.Value.position + spawnPosition;
+                List<Vector3> spawnPositions = new();
+                for (int i = 0; i < units; i++)
+                    spawnPositions.Add(GetSpawnPoint(spawnArea, unitDistance));
+
+                yield return new WaitForSeconds(.5f);
+
+                foreach (Vector3 position in spawnPositions)
+                {
+                    Quaternion rotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+                    GameObject enemy = Pooler.Spawn(prefab, position, rotation, parent);
+                }
+            }
+        }
+
+        Vector3 GetSpawnPoint(Vector3 origin, float radius)
+        {
+
+            bool isWalkable = false;
+            Vector3 position = default;
+
+            int i = 0;
+
+            while (!isWalkable && i < 20)
+            {
+                Vector3 randomPosition = new Vector3(Random.Range(-radius, radius), 0, Random.Range(-radius, radius));
+                position = origin + randomPosition;
+
+                isWalkable = IsWalkable(position);
+                i++;
+            }
+
+            if (position.Equals(default))
+                Debug.LogError("No valid Position found");
+
+            return position;
+        }
+
+        public bool IsWalkable(Vector3 position)
+        {
+            float height = 10f;
+            position.y = height;
+
+            RaycastHit hit;
+
+            if (Physics.Raycast(position, Vector3.down, out hit, height, spawnableLayers))
+                return true;
+            else
+                return false;
         }
     }
 }

@@ -7,7 +7,7 @@ public class LevelPhysics : ScriptableObject
     [SerializeField] float flowStrength = 8f;
     [SerializeField] Vector2 flowDireciton = new Vector2(0, -1);
 
-    public Vector2 GetWaterFlowForce()
+    public Vector2 GetForces()
     {
         return flowDireciton * flowStrength;
     }

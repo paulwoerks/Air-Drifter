@@ -2,26 +2,38 @@ using UnityEngine;
 
 namespace Game
 {
-    public class Enemy : MonoBehaviour, ISpawnable
+    public interface IKillable
     {
-        [SerializeField] int health;
-        [SerializeField] int maxHealth;
+        public void Die();
+    }
+    public class Enemy : MonoBehaviour, ISpawnable, IDespawnable, IKillable
+    {
         [SerializeField] float speed = 1f;
         [SerializeField] float rotationSpeed = 5f;
 
         [SerializeField] float flowResistance = .5f;
-        [SerializeField] Rigidbody2D rb;
+        Rigidbody rb;
+        Health health;
         [SerializeField] LevelPhysics physics;
         [SerializeField] TransformAnchor player;
+        [SerializeField] GroupAnchors group;
 
         void Awake()
         {
+            rb = GetComponent<Rigidbody>();
+            health = GetComponent<Health>();
             OnSpawn();
         }
 
         public void OnSpawn()
         {
-            health = maxHealth;
+            group.Add(gameObject);
+            health.SetHealth();
+        }
+
+        public void OnDespawn()
+        {
+            group.Remove(gameObject);
         }
 
         // Update is called once per frame
@@ -32,20 +44,8 @@ namespace Game
             AddExternalForces();
         }
 
-        public void TakeDamage(int damage)
+        public void Die()
         {
-            health -= damage;
-
-            if (health <= 0)
-            {
-                health = 0;
-                Die();
-            }
-        }
-
-        void Die()
-        {
-            Debug.Log("Die");
             Pooler.Despawn(gameObject);
         }
 
@@ -63,8 +63,12 @@ namespace Game
 
         void AddExternalForces()
         {
+            if (physics == null) return;
+            Vector2 externalForces = physics.GetForces();
+            if (externalForces == Vector2.zero) return;
+
             float resistance = (1f - flowResistance);
-            rb.AddForce(physics.GetWaterFlowForce() * resistance);
+            rb.AddForce(externalForces * resistance);
         }
     }
 }
